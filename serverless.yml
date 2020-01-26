@@ -1,0 +1,130 @@
+service: ${self:provider.stackName}
+
+plugins:
+  - serverless-deployment-bucket
+  - serverless-pseudo-parameters
+  - build-apps
+  - deploy-apps
+  - setup-cognito-saml
+
+provider:
+  name: aws
+  profile: ${opt:profile}
+  stackName: react-cognito-${self:provider.stage}
+  runtime: nodejs12.x
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage}
+  deploymentBucket:
+    name: deploybucket-${self:provider.stackName}
+
+custom:
+  config: ${file(config/${self:provider.stage}.yml)}
+  webAppConfig:
+    website:
+      webAppEntryPoint: ''
+      webAppDeploymentBucket: website-${self:provider.stackName}
+
+package:
+  individually: true
+  exclude:
+    - ./**
+
+resources:
+  Resources:
+
+    CognitoUserPool:
+      Type: "AWS::Cognito::UserPool"
+      Properties:
+        UserPoolName: ${self:provider.stackName}-UserPool
+        AutoVerifiedAttributes:
+          - email
+        MfaConfiguration: "OFF"
+        Schema:
+          - Name: email
+            AttributeDataType: String
+            Mutable: true
+            Required: true
+
+    CognitoUserPoolClient:
+      Type: "AWS::Cognito::UserPoolClient"
+      Properties:
+        GenerateSecret: false
+        UserPoolId:
+          Ref: CognitoUserPool
+
+    CognitoIdentityPool:
+      Type: "AWS::Cognito::IdentityPool"
+      Properties:
+        IdentityPoolName: ${self:provider.stackName}${self:provider.stage}Identity
+        AllowUnauthenticatedIdentities: false
+        CognitoIdentityProviders:
+          - ClientId:
+              Ref: CognitoUserPoolClient
+            ProviderName:
+              Fn::GetAtt: [ CognitoUserPool, ProviderName ]
+
+    CognitoPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain
+      Properties:
+        Domain: ${self:custom.config.cognitoDomain}
+        UserPoolId:
+          Ref: CognitoUserPool
+
+    CognitoAuthorizedRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName:  aa${self:provider.stackName}-AuthRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Federated: "cognito-identity.amazonaws.com"
+              Action:
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals:
+                  "cognito-identity.amazonaws.com:aud":
+                    Ref: CognitoIdentityPool
+                "ForAnyValue:StringLike":
+                  "cognito-identity.amazonaws.com:amr": authenticated
+        Policies:
+          - PolicyName: "CognitoAuthorizedPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "mobileanalytics:PutEvents"
+                    - "cognito-sync:*"
+                    - "cognito-identity:*"
+                  Resource: "*"
+
+    IdentityPoolRoleMapping:
+      DependsOn: CognitoIdentityPool
+      Type: "AWS::Cognito::IdentityPoolRoleAttachment"
+      Properties:
+        IdentityPoolId:
+          Ref: CognitoIdentityPool
+        Roles:
+          authenticated:
+            Fn::GetAtt: [CognitoAuthorizedRole, Arn]
+
+  Outputs:
+    CognitoUserPoolId:
+      Value:
+        Ref: CognitoUserPool
+    CognitoUserPoolClientId:
+      Value:
+        Ref: CognitoUserPoolClient
+    CognitoIdentityPoolId:
+      Value:
+        Ref: CognitoIdentityPool
+    CognitoDomain:
+      Value: ${self:custom.config.cognitoDomain}
+    IdentityProviderName:
+      Value: ${self:custom.config.identityProviderName}
+    WebDomain:
+      Value: ${self:custom.config.webDomain}
+    Region:
+      Value: ${self:provider.region}
