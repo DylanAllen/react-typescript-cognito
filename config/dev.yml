@@ -1,5 +1,6 @@
 cognitoDomain: 'reacttsbp'
 identityProviderName: 'COGNITO'
 webDomain: http://localhost:3000
-authCallbackUrl: http://localhost:3000
+authCallbackPath: /login
+signoutCallbackPath: /
 samlLogin: false

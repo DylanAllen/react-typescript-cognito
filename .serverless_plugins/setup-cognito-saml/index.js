@@ -39,10 +39,13 @@ const writeSpMetadataToDisk = async (cognitoDomain, cognitoUserPoolId, cognitoUs
 
 const getCallbackUrls = async (sls, provider) => {
   sls.cli.log('Getting callback urls');
-  let callBackUrls = [sls.service.provider.config.authCallbackUrl];
-  const webAppConfigs = sls.service.provider.config.webAppConfig
+  const domain = sls.service.custom.webDomain
+  let authCallbackUrl = [`${sls.service.custom.config.webDomain}${sls.service.custom.config.authCallbackPath}`];
+  let signoutUrls = [`${sls.service.custom.config.webDomain}${sls.service.custom.config.signoutCallbackPath}`];
+  const webAppConfigs = sls.service.custom.config.webAppConfig
+  sls.cli.log(authCallbackUrl)
   if (!webAppConfigs) {
-    return callBackUrls;
+    return { authCallbackUrl, signoutUrls };
   }
   await Promise.all(
     Object.keys(webAppConfigs).map(async (app) => {
@@ -55,11 +58,12 @@ const getCallbackUrls = async (sls, provider) => {
       sls.cli.log(JSON.stringify(getParams, null, 2));
       const response = await provider.request('S3', 'getObject', getParams);
       const cfInfo = JSON.parse(response.Body.toString('utf-8'));
-      callBackUrls.push(`https://${cfInfo.Distribution.DomainName}`);
+      authCallbackUrl.push(`https://${cfInfo.Distribution.DomainName}${sls.service.custom.config.authCallbackPath}`);
+      signoutUrls.push(`https://${cfInfo.Distribution.DomainName}${sls.service.custom.config.signoutCallbackPath}`);
     })
   );
-  sls.cli.log(callBackUrls)
-  return callBackUrls;
+  sls.cli.log(authCallbackUrl)
+  return { authCallbackUrl, signoutUrls };
 }
 
 const doWork = async (sls, provider) => {
@@ -68,12 +72,12 @@ const doWork = async (sls, provider) => {
   const cfOutput = await getCfOutput(sls.service.provider.stackName, sls.service.provider.region, provider);
   const userPoolClientId = cfOutput['CognitoUserPoolClientId'];
   const userPoolId = cfOutput['CognitoUserPoolId'];
-  let identityProvider = sls.service.provider.config.identityProviderName;
-  const authCallbackUrl = await getCallbackUrls(sls, provider);
+  let identityProvider = sls.service.custom.config.identityProviderName;
+  const { authCallbackUrl, signoutUrls } = await getCallbackUrls(sls, provider);
   const samlAttributeMapping = sls.service.custom.samlAttributeMapping;
   const metadataUrl = sls.service.custom.MetadataURL;
-  const samlEnabled = sls.service.provider.config.samlLogin;
-  const cognitoDomain = sls.service.provider.config.cognitoDomain;
+  const samlEnabled = sls.service.custom.config.samlLogin;
+  const cognitoDomain = sls.service.custom.config.cognitoDomain;
   sls.cli.log('Auth Callback Urls');
   sls.cli.log(authCallbackUrl);
 
@@ -120,6 +124,7 @@ const doWork = async (sls, provider) => {
       AllowedOAuthFlows: [ 'code', 'implicit' ],
       AllowedOAuthScopes: [ 'phone', 'email', 'openid', 'profile' ],
       CallbackURLs: authCallbackUrl,
+      LogoutURLs: signoutUrls,
       SupportedIdentityProviders: [ identityProvider ]
     }
     sls.cli.log(JSON.stringify(appClientParams, null, 2));

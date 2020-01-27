@@ -19,6 +19,8 @@ provider:
 
 custom:
   config: ${file(config/${self:provider.stage}.yml)}
+  authCallbackPath: ${self:custom.config.authCallbackPath}
+  signoutCallbackPath: ${self:custom.config.signoutCallbackPath}
   webAppConfig:
     website:
       webAppEntryPoint: ''
