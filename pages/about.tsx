@@ -1,16 +1,22 @@
 import * as React from 'react'
-import Link from 'next/link'
 import Layout from '../components/Layout'
+import { Box, Heading, Paragraph } from 'grommet'
 
-const AboutPage: React.FunctionComponent = () => (
-  <Layout title="About | Next.js + TypeScript Example">
-    <h1>About</h1>
-    <p>This is the about page</p>
-    <p>
-      <Link href="/">
-        <a>Go home</a>
-      </Link>
-    </p>
+const AboutPage: React.FunctionComponent = (Props) => (
+  <Layout title="About | Next.js + TypeScript Example" {...Props}>
+    <Box pad="medium">
+      <Heading>
+        About
+      </Heading>
+      <Paragraph>
+        This is an example about page.
+      </Paragraph>
+    </Box>
+    <Box background='accent-1' pad="medium">
+    <Paragraph>
+      A simple page using basic Grommet components.<br/>No auth restrictions, no funny business.
+    </Paragraph>
+    </Box>
   </Layout>
 )
 

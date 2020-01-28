@@ -1,11 +1,22 @@
 import * as React from 'react'
 import { initAuth, isAuthenticated } from '../utils/auth'
 import { useEffect, useState } from 'react'
+import { Box, Heading } from 'grommet'
 
 type Props = {
   auth?: boolean,
-  state: any,
-  dispatch: any
+  state?: any,
+  dispatch?: any
+}
+
+const CheckingAuth = () => {
+  return (
+    <Box>
+      <Heading margin="medium" textAlign="center" alignSelf="center">
+        Checking Auth Status...
+      </Heading>
+    </Box>
+  )
 }
 
 const AuthWrapper: React.FunctionComponent<Props> = ({ auth, children, state, dispatch}) => {
@@ -14,11 +25,13 @@ const AuthWrapper: React.FunctionComponent<Props> = ({ auth, children, state, di
   useEffect(() => {
     const asyncWrap = async () => {
       if (auth && state.authState === 'unauthenticated') {
+        console.log('unauthenticated, checking auth');
         setShow(false)
         const isAuth = await isAuthenticated();
         if (isAuth) {
+          console.log('authenticated');
           setShow(true)
-          dispatch({action: 'setAuthState', value: 'authenticated'})
+          dispatch({type: 'setAuthState', value: 'authenticated'})
         } else {
           initAuth()
         }
@@ -32,6 +45,7 @@ const AuthWrapper: React.FunctionComponent<Props> = ({ auth, children, state, di
   return (
     <div>
       {show && children}
+      {!show && <CheckingAuth />}
     </div>
   )
 }

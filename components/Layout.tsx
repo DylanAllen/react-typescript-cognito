@@ -1,24 +1,30 @@
 import * as React from 'react'
+import { useEffect } from 'react'
 import Head from 'next/head'
-import { Grommet, Box, Footer } from 'grommet'
+import { Grommet, Box } from 'grommet'
 import { theme } from '../utils/theme.js'
 import AuthWrapper from './AuthWrapper'
 import SiteHeader from './SiteHeader'
-import { useReducer } from 'react'
-import { appReducer, initialState, initReducer } from '../utils/reducer'
+import SiteFooter from './SiteFooter'
+import { stateTypes } from '../interfaces'
 
 type Props = {
   title?: string,
-  auth?: boolean
+  auth?: boolean,
+  state?: stateTypes,
+  dispatch?: any
 }
 
-const Layout: React.FunctionComponent<Props> = ({
-  children,
-  title = 'This is the default title',
-  auth = false
-}) => {
+const Layout: React.FunctionComponent<Props> = (Props) => {
+  const {
+    children,
+    title = 'This is the default title',
+  } = Props
 
-  const [state, dispatch] = useReducer(appReducer, initialState, initReducer)
+  console.log('state before effect', Props.state);
+  useEffect(() => {
+    console.log('state', Props.state);
+  }, [Props.state])
 
   return (
     <Grommet theme={theme}>
@@ -28,14 +34,11 @@ const Layout: React.FunctionComponent<Props> = ({
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <Box>
-        <SiteHeader state={state} dispatch={dispatch} />
-        <AuthWrapper auth={auth} state={state} dispatch={dispatch}>
-            {children}
-        </AuthWrapper>
-        <Footer>
-          <hr />
-          <span>I'm here to stay (Footer)</span>
-        </Footer>
+      <SiteHeader {...Props}/>
+      <AuthWrapper {...Props}>
+          {children}
+      </AuthWrapper>
+      <SiteFooter {...Props} />
       </Box>
     </Grommet>
   )
