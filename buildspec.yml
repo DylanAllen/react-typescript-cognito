@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+    commands:
+      - npm install -g serverless
+      - npm ci
+  build:
+    commands:
+      - export SLS_DEBUG=*
+      - serverless slstats --disable --stage prod
+      - serverless deploy --stage dev
