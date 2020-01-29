@@ -2,7 +2,7 @@ import * as React from 'react'
 import Link from './Link'
 import { Nav } from 'grommet'
 import { stateTypes } from '../interfaces'
-import { signOut } from '../utils/auth'
+import { authUtil } from '../utils/auth'
 
 type Props = {
   state?: stateTypes,
@@ -12,8 +12,9 @@ type Props = {
 const NavMenu: React.FunctionComponent<Props> = (Props) => {
 
   const logOut = () => {
+    const auth = new authUtil();
     Props.dispatch({ type: 'setAuthState', value: 'unauthenticated'})
-    signOut();
+    auth.signOut();
   }
   let state = Props.state || { authState: 'unauthenticated' }
 

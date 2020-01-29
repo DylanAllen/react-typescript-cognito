@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { initAuth, isAuthenticated } from '../utils/auth'
+import { authUtil } from '../utils/auth'
 import { useEffect, useState } from 'react'
 import { Box, Heading } from 'grommet'
 
@@ -25,15 +25,14 @@ const AuthWrapper: React.FunctionComponent<Props> = ({ auth, children, state, di
   useEffect(() => {
     const asyncWrap = async () => {
       if (auth && state.authState === 'unauthenticated') {
-        console.log('unauthenticated, checking auth');
         setShow(false)
-        const isAuth = await isAuthenticated();
+        const Authorizer = new authUtil();
+        const isAuth = await Authorizer.isAuthenticated();
         if (isAuth) {
-          console.log('authenticated');
           setShow(true)
           dispatch({type: 'setAuthState', value: 'authenticated'})
         } else {
-          initAuth()
+          Authorizer.initAuth()
         }
       } else {
         setShow(true);
