@@ -42,8 +42,7 @@ const getCallbackUrls = async (sls, provider) => {
   const domain = sls.service.custom.webDomain
   let authCallbackUrl = [`${sls.service.custom.config.webDomain}${sls.service.custom.config.authCallbackPath}`];
   let signoutUrls = [`${sls.service.custom.config.webDomain}${sls.service.custom.config.signoutCallbackPath}`];
-  const webAppConfigs = sls.service.custom.config.webAppConfig
-  sls.cli.log(authCallbackUrl)
+  const webAppConfigs = sls.service.custom.webAppConfig
   if (!webAppConfigs) {
     return { authCallbackUrl, signoutUrls };
   }
@@ -62,7 +61,6 @@ const getCallbackUrls = async (sls, provider) => {
       signoutUrls.push(`https://${cfInfo.Distribution.DomainName}${sls.service.custom.config.signoutCallbackPath}`);
     })
   );
-  sls.cli.log(authCallbackUrl)
   return { authCallbackUrl, signoutUrls };
 }
 
