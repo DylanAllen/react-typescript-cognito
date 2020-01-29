@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { useEffect } from 'react'
 import Head from 'next/head'
 import { Grommet, Box } from 'grommet'
 import { theme } from '../utils/theme.js'
@@ -20,11 +19,6 @@ const Layout: React.FunctionComponent<Props> = (Props) => {
     children,
     title = 'This is the default title',
   } = Props
-
-  console.log('state before effect', Props.state);
-  useEffect(() => {
-    console.log('state', Props.state);
-  }, [Props.state])
 
   return (
     <Grommet theme={theme}>
