@@ -4,7 +4,6 @@ import { NextPage } from 'next'
 import { Box, Heading, Paragraph } from 'grommet'
 
 const AdminPage: NextPage = (Props) => {
-  console.log(Props)
   return (
     <Layout title="Auth Guarded Page" auth={true} {...Props}>
     <Box pad="medium">
