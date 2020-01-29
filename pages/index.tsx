@@ -3,16 +3,19 @@ import Layout from '../components/Layout'
 import { NextPage } from 'next'
 import Link from '../components/Link'
 import { Heading, Box, List, Clock, Markdown } from 'grommet'
+import { Github } from 'grommet-icons';
 
 const IndexPage: NextPage = (Props) => {
   return (
     <Layout title="Home | Next.js + TypeScript Example" auth={false} {...Props}>
       <Box>
-        <Heading textAlign="center" alignSelf="center">React-TS-Cognito</Heading>
+        <Heading textAlign="center" alignSelf="center">
+          <Link icon={<Github size="large" />} href="https://github.com/DylanAllen/react-typescript-cognito"/> React TS Cognito
+        </Heading>
         <Box pad="medium">
           <Clock type="digital" size="xlarge" alignSelf="center" />
           <Heading level={3} textAlign="center" alignSelf="center" color="brand">
-            This is a boilerplate app that uses:
+            This is a starter app that uses:
           </Heading>
           <Box alignSelf="center" width="370px">
             <List

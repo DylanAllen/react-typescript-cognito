@@ -2,9 +2,7 @@ import './style.css'
 import { useReducer, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { appReducer, initialState, initReducer } from '../utils/reducer'
-
 import * as React from "react";
-import { Container } from "next/app";
 
 function CApp(Props: any): any {
   const router = useRouter()
@@ -18,23 +16,21 @@ function CApp(Props: any): any {
   const { Component, pageProps } = Props;
   const [state, dispatch] = useReducer(appReducer, initialState, initReducer);
   return (
-    <Container>
-      <div className={containerClass}>
-        <Component state={state} dispatch={dispatch} {...pageProps} />
-        <style jsx>
-        {
-          `.mainContain {
-            opacity: 1;
-            transition: all 0.4s ease 0.2s;
-          }
-
-          .mainContain.hidden {
-            opacity: 0;
-          }`
+    <div className={containerClass}>
+      <Component state={state} dispatch={dispatch} {...pageProps} />
+      <style jsx>
+      {
+        `.mainContain {
+          opacity: 1;
+          transition: all 0.4s ease 0.2s;
         }
-        </style>
-      </div>
-    </Container>
+
+        .mainContain.hidden {
+          opacity: 0;
+        }`
+      }
+      </style>
+    </div>
   )
 }
 

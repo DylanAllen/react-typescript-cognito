@@ -22,7 +22,7 @@ const NavMenu: React.FunctionComponent<Props> = (Props) => {
     <Nav direction="row" pad="medium">
       <Link path="/" label="Home" color="background-1" />
       <Link path="/about" label="About" color="background-1"  />
-      <Link path="/admin" label="Admin Page" color="background-1" />
+      <Link path="/admin" label="Admin" color="background-1" />
       { (state.authState !== 'unauthenticated') && <Link onClick={logOut} label="Sign Out" color="background-1" /> }
       { (state.authState === 'unauthenticated') && <Link path='/login' label="Log in" color="background-1" />}
     </Nav>
